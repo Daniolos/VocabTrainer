@@ -1,3 +1,4 @@
 .vscode/*
 Pipfile.lock
 vocabularies/*
+__pycache__/*
