@@ -1,4 +1,5 @@
 import json
+import random
 import re
 
 
@@ -14,26 +15,56 @@ class Vocab:
 class VocabModel:
     def __init__(self, file_name: str):
         self.vocab_list = VocabLoader.load_vocab_list(file_name)
-        self.current_vocab_index = 0
-        self.wrong_vocab_list: list[Vocab] = []
+
+        self.reset()
 
     @property
     def current_vocab(self):
-        return self.vocab_list[self.current_vocab_index]
+        return (
+            self.current_vocab_list[self.current_vocab_index]
+            if self.current_vocab_list
+            else None
+        )
+
+    @property
+    def next_vocab(self):
+        if self.is_last_vocab:
+            return self.next_list[0] if self.next_list else None
+
+        index = self.current_vocab_index + 1
+        return self.current_vocab_list[index]
+
+    @property
+    def is_last_vocab(self):
+        return self.current_vocab_index >= len(self.current_vocab_list) - 1
+
+    @property
+    def next_list(self):
+        return (
+            self.wrong_vocab_list
+            if self.current_vocab_list is self.vocab_list
+            else None
+        )
 
     def set_next_vocab(self):
-        if self.current_vocab_index < len(self.vocab_list) - 1:
+        if not self.is_last_vocab:
             self.current_vocab_index += 1
-            return
+        else:
+            self.current_vocab_index = 0
+            self.set_next_list()
+
+    def set_next_list(self):
+        self.current_vocab_list = self.next_list
+
+    def reset(self):
+        self.wrong_vocab_list = []
         self.current_vocab_index = 0
+        self.current_vocab_list = self.vocab_list
 
     def mark_vocab_wrong(self):
         if self.current_vocab in self.wrong_vocab_list:
             return
         self.wrong_vocab_list.append(self.current_vocab)
-
-    def reset_wrong_vocab_list(self):
-        self.wrong_vocab_list = []
 
     def verify_input(self, input: str) -> bool:
         print(self.comparable(input))
@@ -51,6 +82,7 @@ class VocabModel:
             .replace("the ", "")
             .replace("a ", "")
             .replace("sb.", "somebody")
+            .replace("someone", "somebody")
             .strip()
         )
 
@@ -67,7 +99,10 @@ class VocabLoader:
                 "Please read the README.md for more information."
             )
 
-        return [Vocab(vocab_data) for vocab_data in vocab_data_list]
+        vocab_list = [Vocab(vocab_data) for vocab_data in vocab_data_list]
+        random.shuffle(vocab_list)
+
+        return vocab_list
 
     @staticmethod
     def validate_format(data) -> bool:

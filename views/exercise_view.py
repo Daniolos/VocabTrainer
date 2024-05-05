@@ -5,7 +5,7 @@ from controllers.protocols.exercise_controller_protocol import (
     ExerciseControllerProtocol,
 )
 from models import Vocab
-from views.widgets import Entry, Label, SubmitButton
+from views.widgets import Entry, Label, ProgressBar, SubmitButton
 
 
 class ExerciseView(tk.Frame):
@@ -14,6 +14,8 @@ class ExerciseView(tk.Frame):
         self, master: App, controller: ExerciseControllerProtocol, vocab: Vocab
     ):
         super().__init__(master, padx=200, pady=200)
+
+        self.progress_bar = ProgressBar(self, 0, 0)
 
         Label(self, "Translate the following vocabulary")
         self.vocab = Label(self, vocab.german)
@@ -31,7 +33,10 @@ class ExerciseView(tk.Frame):
         )
 
     def set_vocab(self, text: str) -> None:
-        self.vocab.config(text=text)
+        self.vocab.set_text(text)
 
     def set_feedback(self, text: str, foreground: str) -> None:
-        self.feedback.config(text=text, foreground=foreground)
+        self.feedback.set_text(text, foreground)
+
+    def set_progress_bar(self, maximum, value):
+        self.progress_bar.config(maximum=maximum, value=value)
