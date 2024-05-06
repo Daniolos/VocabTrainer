@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 
 class Label(ttk.Label):
-    def __init__(self, master: tk.Misc, text: str) -> None:
+    def __init__(self, master: tk.Misc, text: str = "") -> None:
         super().__init__(master, text=text, padding=10)
         self.pack(side="top", fill="both", expand=True)
 

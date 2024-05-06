@@ -1,3 +1,4 @@
+from time import perf_counter
 from app import App
 from app_controller import AppController
 from controllers.end_controller import EndController
@@ -14,52 +15,51 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
         self.app = app
         self.app_controller = app_controller
 
-        self.wrong_counter = 0
+        self.view: ExerciseView = ExerciseView(app, self)
+        self.reset()
 
-        vocab = self.app_controller.vocab_model.current_vocab
-        self.view: ExerciseView = ExerciseView(app, self, vocab)
+    @property
+    def elapsed_time(self):
+        return perf_counter() - self.start_time
+
+    @property
+    def exercise_container(self):
+        return self.app_controller.exercise_model.exercise_container
 
     def handle_button(self):
+        if not self.exercise_container.current_exercise:
+            return
+
         entry = self.view.entry_variable.get()
         return (
             self.handle_correct_entry()
-            if self.app_controller.vocab_model.verify_input(entry)
+            if self.app_controller.exercise_model.answer_verifier.verify(entry)
             else self.handle_wrong_entry()
         )
 
     def handle_correct_entry(self):
+        self.exercise_container.set_next_exercise()
+        self.set_progress()
+
         return (
-            self.display_next_vocab()
-            if self.app_controller.vocab_model.next_vocab
+            self.display_next_exercise()
+            if self.exercise_container.current_exercise
             else self.display_end_view()
         )
 
-    def set_progress(self):
-        maximum = len(self.app_controller.vocab_model.vocab_list) + len(
-            self.app_controller.vocab_model.wrong_vocab_list
-        )
-        vocab_model = self.app_controller.vocab_model
-        value = (
-            vocab_model.current_vocab_index
-            if vocab_model.current_vocab_list is vocab_model.vocab_list
-            else len(vocab_model.vocab_list) + vocab_model.current_vocab_index
-        )
-
-        self.view.set_progress_bar(maximum, value)
-
-    def display_next_vocab(self):
-        self.app_controller.vocab_model.set_next_vocab()
-        vocab = self.app_controller.vocab_model.current_vocab
-        self.wrong_counter = 0
-
-        self.set_progress()
-        self.view.set_vocab(vocab.german)
-        self.view.entry_variable.set("")
-        self.view.set_feedback("Correct!", "#80af23")
+    def display_next_exercise(self):
+        self.view.set_feedback(f"Correct! ({round(self.elapsed_time, 2)}s)", "#80af23")
         self.view.feedback.after(1_000, lambda: self.view.feedback.set_text(""))
+        self.reset()
+
+    def reset(self):
+        self.wrong_counter = 0
+        self.view.set_assignment(self.exercise_container.current_exercise.assignment)
+        self.view.entry_variable.set("")
+        self.start_time = perf_counter()
 
     def display_end_view(self):
-        self.app_controller.display_view(EndController)
+        self.view.after(200, lambda: self.app_controller.display_view(EndController))
 
     def handle_wrong_entry(self):
         self.wrong_counter += 1
@@ -71,9 +71,27 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
             else self.display_feedback()
         )
 
+    def set_progress(self):
+        container = self.exercise_container
+        maximum = len(container.exercise_list) + len(container.wrong_exercise_list)
+        value = self.determine_progress_value()
+
+        self.view.set_progress_bar(maximum, value)
+
+    def determine_progress_value(self):
+        container = self.exercise_container
+        if container.current_exercise_list is container.exercise_list:
+            return container.current_exercise_index
+        if container.current_exercise_list is container.wrong_exercise_list:
+            return len(container.exercise_list) + container.current_exercise_index
+        return len(container.exercise_list) + len(container.wrong_exercise_list)
+
     def display_lecture_view(self):
         self.app_controller.display_view(LectureController)
 
     def display_feedback(self):
-        self.app_controller.vocab_model.mark_vocab_wrong()
-        self.view.set_feedback("Your answer was wrong. Try again!", "#c51e5a")
+        self.exercise_container.mark_exercise_wrong()
+        self.view.set_feedback(
+            f"Your answer was wrong. Try again! ({round(self.elapsed_time, 2)}s)",
+            "#c51e5a",
+        )

@@ -6,14 +6,16 @@ from views.widgets import Label, SubmitButton
 
 
 class EndView(tk.Frame):
-    def __init__(self, app: App, controller: EndControllerProtocol, wrong_vocabs: str):
+    def __init__(
+        self, app: App, controller: EndControllerProtocol, wrong_exercises: str
+    ):
         self.controller = controller
 
         super().__init__(app, padx=200, pady=200)
         Label(self, text="Du hast alle Vokabeln geschafft!")
 
-        if wrong_vocabs:
-            self.show_wrong_vocabs(wrong_vocabs)
+        if wrong_exercises:
+            self.show_wrong_exercises(wrong_exercises)
 
         SubmitButton(
             self,
@@ -21,7 +23,7 @@ class EndView(tk.Frame):
             command=lambda: controller.handle_button(),
         )
 
-    def show_wrong_vocabs(self, wrong_vocabs: str):
+    def show_wrong_exercises(self, wrong_exercises: str):
         Label(
             self,
             text=(
@@ -29,4 +31,4 @@ class EndView(tk.Frame):
                 "Vielleicht willst du sie nochmal genauer anschauen."
             ),
         )
-        Label(self, text=wrong_vocabs)
+        Label(self, text=wrong_exercises)

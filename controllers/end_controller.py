@@ -10,14 +10,15 @@ class EndController(ViewController, EndControllerProtocol):
         self.app = app
         self.app_controller = app_controller
 
-        wrong_vocabs = ", ".join(
-            vocab.english for vocab in self.app_controller.vocab_model.wrong_vocab_list
+        wrong_answers = ", ".join(
+            exercise.solution
+            for exercise in self.app_controller.exercise_model.exercise_container.wrong_exercise_list
         )
 
-        self.view = EndView(app, self, wrong_vocabs)
+        self.view = EndView(app, self, wrong_answers)
 
     def handle_button(self):
         from controllers.exercise_controller import ExerciseController
 
-        self.app_controller.vocab_model.reset()
+        self.app_controller.exercise_model.exercise_container.reset()
         self.app_controller.display_view(ExerciseController)

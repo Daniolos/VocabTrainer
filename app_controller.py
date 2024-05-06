@@ -2,17 +2,17 @@ import tkinter as tk
 from typing import Type
 
 from controllers.view_controller import ViewController
-from models import VocabModel
+from models.exercise_model import ExerciseModel
 
 
 class AppController:
     def __init__(
         self,
-        vocab_model: VocabModel,
+        exercise_model: ExerciseModel,
         app: tk.Tk,
         controller: ViewController,
     ) -> None:
-        self.vocab_model = vocab_model
+        self.exercise_model = exercise_model
         self.app = app
 
         self.current_controller: ViewController = None

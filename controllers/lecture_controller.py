@@ -9,7 +9,7 @@ class LectureController(ViewController):
         self.app = app
         self.app_controller = app_controller
 
-        self.view = LectureView(app, self, app_controller.vocab_model.current_vocab)
+        self.view = LectureView(app, self, app_controller.exercise_model.current_vocab)
 
     def handle_button(self):
         from controllers.exercise_controller import ExerciseController

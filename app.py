@@ -4,7 +4,7 @@ import tkinter as tk
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
-        self.geometry(f"{800}x{600}")
+        self.geometry(f"{1_000}x{600}")
         self.state = False
 
         self.bind("<F11>", self.toggle_fullscreen)
