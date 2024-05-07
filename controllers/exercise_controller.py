@@ -7,6 +7,7 @@ from controllers.view_controller import ViewController
 from controllers.protocols.exercise_controller_protocol import (
     ExerciseControllerProtocol,
 )
+from models.answer import Answer
 from views.exercise_view import ExerciseView
 
 
@@ -14,6 +15,7 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
     def __init__(self, app: App, app_controller: AppController) -> None:
         self.app = app
         self.app_controller = app_controller
+        self.current_answer = None
 
         self.view: ExerciseView = ExerciseView(app, self)
         self.reset()
@@ -23,38 +25,53 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
         return perf_counter() - self.start_time
 
     @property
-    def exercise_container(self):
-        return self.app_controller.exercise_model.exercise_container
+    def exercise_model(self):
+        return self.app_controller.exercise_model
 
     def handle_button(self):
-        if not self.exercise_container.current_exercise:
+        if not self.exercise_model.current_exercise:
             return
 
-        entry = self.view.entry_variable.get()
+        self.set_current_answer()
+        self.exercise_model.add_answer(self.current_answer)
+
         return (
             self.handle_correct_entry()
-            if self.app_controller.exercise_model.answer_verifier.verify(entry)
+            if self.current_answer.is_correct
             else self.handle_wrong_entry()
         )
 
+    def set_current_answer(self):
+        entry = self.view.entry_variable.get()
+        exercise = self.exercise_model.current_exercise
+
+        self.current_answer = Answer(
+            entry,
+            exercise,
+            self.elapsed_time,
+            self.app_controller.answer_verifier.verify(entry, exercise.solution),
+        )
+
     def handle_correct_entry(self):
-        self.exercise_container.set_next_exercise()
+        self.exercise_model.set_next_exercise()
         self.set_progress()
 
         return (
             self.display_next_exercise()
-            if self.exercise_container.current_exercise
+            if self.exercise_model.current_exercise
             else self.display_end_view()
         )
 
     def display_next_exercise(self):
-        self.view.set_feedback(f"Correct! ({round(self.elapsed_time, 2)}s)", "#80af23")
+        self.view.set_feedback(
+            f"Correct! ({round(self.current_answer.seconds_needed, 2)}s)", "#80af23"
+        )
         self.view.feedback.after(1_000, lambda: self.view.feedback.set_text(""))
         self.reset()
 
     def reset(self):
         self.wrong_counter = 0
-        self.view.set_assignment(self.exercise_container.current_exercise.assignment)
+        self.view.set_assignment(self.exercise_model.current_exercise.assignment)
         self.view.entry_variable.set("")
         self.start_time = perf_counter()
 
@@ -72,26 +89,25 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
         )
 
     def set_progress(self):
-        container = self.exercise_container
-        maximum = len(container.exercise_list) + len(container.wrong_exercise_list)
+        model = self.exercise_model
+        maximum = len(model.exercise_list) + len(model.wrong_exercise_list)
         value = self.determine_progress_value()
 
         self.view.set_progress_bar(maximum, value)
 
     def determine_progress_value(self):
-        container = self.exercise_container
-        if container.current_exercise_list is container.exercise_list:
-            return container.current_exercise_index
-        if container.current_exercise_list is container.wrong_exercise_list:
-            return len(container.exercise_list) + container.current_exercise_index
-        return len(container.exercise_list) + len(container.wrong_exercise_list)
+        model = self.exercise_model
+        if model.current_exercise_list is model.exercise_list:
+            return model.current_exercise_index
+        if model.current_exercise_list is model.wrong_exercise_list:
+            return len(model.exercise_list) + model.current_exercise_index
+        return len(model.exercise_list) + len(model.wrong_exercise_list)
 
     def display_lecture_view(self):
         self.app_controller.display_view(LectureController)
 
     def display_feedback(self):
-        self.exercise_container.mark_exercise_wrong()
         self.view.set_feedback(
-            f"Your answer was wrong. Try again! ({round(self.elapsed_time, 2)}s)",
+            f"Your answer was wrong. Try again! ({round(self.current_answer.seconds_needed, 2)}s)",
             "#c51e5a",
         )

@@ -3,16 +3,19 @@ from typing import Type
 
 from controllers.view_controller import ViewController
 from models.exercise_model import ExerciseModel
+from models.exercise_verifier import AnswerVerifier
 
 
 class AppController:
     def __init__(
         self,
         exercise_model: ExerciseModel,
+        answer_verifier: AnswerVerifier,
         app: tk.Tk,
         controller: ViewController,
     ) -> None:
         self.exercise_model = exercise_model
+        self.answer_verifier = answer_verifier
         self.app = app
 
         self.current_controller: ViewController = None

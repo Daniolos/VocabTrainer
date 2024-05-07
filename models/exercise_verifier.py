@@ -1,24 +1,14 @@
-from dataclasses import dataclass
 import re
 
-from models.exercise_container import ExerciseContainer
 
-
-@dataclass
 class AnswerVerifier:
-    exercise_container: ExerciseContainer
+    parenthesis_regex = re.compile(r"\([^\)]*\)")
 
-    def verify(self, input: str) -> bool:
-        return (
-            True
-            if self.comparable(input)
-            == self.comparable(self.exercise_container.current_exercise.solution)
-            else False
-        )
+    def verify(self, input: str, solution: str) -> bool:
+        return True if self._comparable(input) == self._comparable(solution) else False
 
-    @staticmethod
-    def comparable(text: str) -> list[str]:
-        text = re.sub(r"\([^\)]*\)", "", text)
+    def _comparable(self, text: str) -> list[str]:
+        text = self.parenthesis_regex.sub("", text)
         return (
             text.replace("to ", "")
             .replace("the ", "")

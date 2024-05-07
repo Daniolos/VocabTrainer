@@ -1,4 +1,6 @@
 import tkinter as tk
+from ttkbootstrap.constants import DEFAULT, PRIMARY
+from ttkbootstrap.tableview import Tableview
 from tkinter import ttk
 from typing import Any, Callable
 
@@ -41,4 +43,10 @@ class ProgressBar(ttk.Progressbar):
             orient="horizontal",
             value=value,
         )
+        self.pack()
+
+
+class TableView(Tableview):
+    def __init__(self, master, coldata, rowdata):
+        super().__init__(master, PRIMARY, coldata, rowdata)
         self.pack()
