@@ -19,7 +19,7 @@ class EndView(tk.Frame):
         super().__init__(app, padx=200, pady=200)
         Label(self, text="Du hast alle Vokabeln geschafft!")
 
-        self.display_table_view(answer_list)
+        # self.display_table_view(answer_list)
 
         if wrong_answers:
             self.display_wrong_exercises(wrong_answers)
