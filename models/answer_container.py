@@ -4,7 +4,7 @@ from models.exercise import Exercise
 
 class AnswerContainer:
     def __init__(self) -> None:
-        self.answer_list: list[Answer] = []
+        self.reset()
 
     @property
     def wrong_answer_list(self) -> list[Answer]:
@@ -12,7 +12,10 @@ class AnswerContainer:
 
     @property
     def wrong_exercise_list(self) -> list[Exercise]:
-        return [answer.exercise for answer in self.wrong_answer_list]
+        return [answer.exercise for answer in set(self.wrong_answer_list)]
+
+    def reset(self):
+        self.answer_list: list[Answer] = []
 
     def add_answer(self, answer: Answer):
         self.answer_list.append(answer)

@@ -99,7 +99,7 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
         model = self.exercise_model
         if model.current_exercise_list is model.exercise_list:
             return model.current_exercise_index
-        if model.current_exercise_list is model.wrong_exercise_list:
+        if model.current_exercise_list:
             return len(model.exercise_list) + model.current_exercise_index
         return len(model.exercise_list) + len(model.wrong_exercise_list)
 

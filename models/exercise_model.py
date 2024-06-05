@@ -27,6 +27,10 @@ class ExerciseModel:
     def is_last_exercise(self):
         return self.current_exercise_index >= len(self.current_exercise_list) - 1
 
+    @property
+    def wrong_exercise_list(self):
+        return self.answer_container.wrong_exercise_list
+
     def set_next_exercise(self):
         if not self.is_last_exercise:
             self.current_exercise_index += 1
@@ -35,7 +39,6 @@ class ExerciseModel:
             self.set_next_list()
 
     def set_next_list(self):
-        self.wrong_exercise_list = self.answer_container.wrong_exercise_list
         self.current_exercise_list = (
             self.wrong_exercise_list
             if self.current_exercise_list is self.exercise_list
@@ -47,9 +50,9 @@ class ExerciseModel:
 
     def reset(self):
         self.shuffle_exercise_list()
-        self.wrong_exercise_list: list[Exercise] = []
         self.current_exercise_index = 0
         self.current_exercise_list = self.exercise_list
+        self.answer_container.reset()
 
     def shuffle_exercise_list(self):
         random.shuffle(self.exercise_list)
