@@ -1,5 +1,5 @@
 import tkinter as tk
-from ttkbootstrap.constants import DEFAULT, PRIMARY
+from ttkbootstrap.constants import PRIMARY, BOTH, YES
 from ttkbootstrap.tableview import Tableview
 from tkinter import ttk
 from typing import Any, Callable
@@ -49,4 +49,4 @@ class ProgressBar(ttk.Progressbar):
 class TableView(Tableview):
     def __init__(self, master, coldata, rowdata):
         super().__init__(master, PRIMARY, coldata, rowdata)
-        self.pack()
+        self.pack(fill=BOTH, expand=YES, padx=8, pady=8)

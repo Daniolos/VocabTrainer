@@ -11,36 +11,20 @@ class EndController(ViewController, EndControllerProtocol):
         self.app = app
         self.app_controller = app_controller
 
-        # TODO: Create a table view with all results -> times needed is especially interesting
-
         wrong_answers = ", ".join(
             f"{answer.value} != {answer.exercise.solution}"
             for answer in self.app_controller.exercise_model.answer_container.wrong_answer_list
         )
 
-        self.view = EndView(app, self, wrong_answers)
+        self.view = EndView(
+            app,
+            self,
+            self.app_controller.exercise_model.answer_container.answer_list,
+            wrong_answers,
+        )
 
     def handle_button(self):
         from controllers.exercise_controller import ExerciseController
 
         self.app_controller.exercise_model.reset()
         self.app_controller.display_view(ExerciseController)
-
-    def set_table_view(self):
-        column_data = [
-            "Instruction",
-            "Solution",
-            "Answer",
-            "Is Correct",
-            "Seconds Needed",
-        ]
-        row_data = [
-            (
-                answer.exercise.assignment,
-                answer.exercise.solution,
-                answer.value,
-                answer.is_correct,
-                f"{answer.seconds_needed}s",
-            )
-            for answer in self.app_controller.exercise_model.answer_container.answer_list
-        ]
