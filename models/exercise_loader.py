@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+from pathlib import Path
 import random
 
 from models.exercise import Exercise
@@ -7,10 +8,13 @@ from models.exercise import Exercise
 
 @dataclass
 class ExerciseLoader:
-    file_name: str
+    def load_exercise_lists(
+        self, path: str = "vocabularies", pattern: str = "*.json"
+    ) -> list[list[Exercise]]:
+        return [self.load_exercise_list(path) for path in Path(path).glob(pattern)]
 
-    def load_exercise_list(self) -> list[Exercise]:
-        with open(self.file_name, "r", encoding="utf-8") as file:
+    def load_exercise_list(self, path: Path) -> list[Exercise]:
+        with open(path, "r", encoding="utf-8") as file:
             exercise_data_list = json.load(file)
 
         if not self.validate_format(exercise_data_list):

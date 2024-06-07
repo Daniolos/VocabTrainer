@@ -3,7 +3,6 @@ from app_controller import AppController
 from controllers.protocols.end_controller_protocol import EndControllerProtocol
 from controllers.view_controller import ViewController
 from views.end_view import EndView
-from views.widgets import TableView
 
 
 class EndController(ViewController, EndControllerProtocol):

@@ -8,18 +8,15 @@ from models.exercise_verifier import AnswerVerifier
 
 
 def main():
-    loader = ExerciseLoader("vocabularies/test.json")
-    exercise_list = loader.load_exercise_list()
+    loader = ExerciseLoader()
+    exercise_lists = loader.load_exercise_lists(pattern="test.json")
 
     answer_container = AnswerContainer()
-    exercise_model = ExerciseModel(exercise_list, answer_container)
-    answer_verifier = AnswerVerifier()
-    app = App()
 
     app_controller = AppController(
-        exercise_model,
-        answer_verifier,
-        app,
+        ExerciseModel(exercise_lists[0], answer_container),
+        AnswerVerifier(),
+        App(),
         ExerciseController,
     )
     app_controller.run()
