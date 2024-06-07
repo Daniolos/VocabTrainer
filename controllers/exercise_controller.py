@@ -90,18 +90,13 @@ class ExerciseController(ViewController, ExerciseControllerProtocol):
 
     def set_progress(self):
         model = self.exercise_model
-        maximum = len(model.exercise_list) + len(model.wrong_exercise_list)
-        value = self.determine_progress_value()
+        if not model.current_exercise_list:
+            return
+
+        maximum = len(model.current_exercise_list)
+        value = model.current_exercise_index
 
         self.view.set_progress_bar(maximum, value)
-
-    def determine_progress_value(self):
-        model = self.exercise_model
-        if model.current_exercise_list is model.exercise_list:
-            return model.current_exercise_index
-        if model.current_exercise_list:
-            return len(model.exercise_list) + model.current_exercise_index
-        return len(model.exercise_list) + len(model.wrong_exercise_list)
 
     def display_lecture_view(self):
         self.app_controller.display_view(LectureController)

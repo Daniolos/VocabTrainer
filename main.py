@@ -9,12 +9,12 @@ from models.exercise_verifier import AnswerVerifier
 
 def main():
     loader = ExerciseLoader()
-    exercise_lists = loader.load_exercise_lists(pattern="test.json")
+    exercise_lists = loader.load_exercise_lists()
 
     answer_container = AnswerContainer()
 
     app_controller = AppController(
-        ExerciseModel(exercise_lists[0], answer_container),
+        ExerciseModel(exercise_lists, answer_container),
         AnswerVerifier(),
         App(),
         ExerciseController,
